@@ -2,7 +2,6 @@ services:
   - type: web
     name: agritrack-api
     runtime: php
-    rootDir: api
     plan: starter
     region: frankfurt
     buildCommand: |
@@ -44,3 +43,5 @@ services:
         sync: false
       - key: CORS_ALLOWED_ORIGINS
         sync: false
+      - key: SANCTUM_TOKEN_EXPIRATION
+        value: "10080"

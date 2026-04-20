@@ -19,7 +19,7 @@ Route::get('/health', fn () => response()->json([
     'time'    => now()->toIso8601String(),
 ]));
 
-Route::prefix('auth')->group(function (): void {
+Route::prefix('auth')->middleware('throttle:10,1')->group(function (): void {
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login',    [AuthController::class, 'login']);
 
