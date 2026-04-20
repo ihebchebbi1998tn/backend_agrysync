@@ -10,9 +10,17 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-COPY . .
+# Copy dependency manifests first — lets Docker cache the vendor layer
+# independently of app code changes
+COPY composer.json composer.lock ./
+RUN COMPOSER_MEMORY_LIMIT=-1 composer install \
+    --no-dev --no-scripts --optimize-autoloader \
+    --no-interaction --prefer-dist
 
-RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist \
+# Copy app files then run post-install scripts that need them
+COPY . .
+RUN COMPOSER_MEMORY_LIMIT=-1 composer dump-autoload --optimize \
+    && php artisan package:discover --ansi \
     && mkdir -p storage/framework/{cache/data,sessions,views} storage/logs \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
@@ -21,7 +29,6 @@ COPY docker/vhost.conf /etc/apache2/sites-available/000-default.conf
 RUN a2enmod rewrite
 
 COPY docker/entrypoint.sh /entrypoint.sh
-# Strip Windows CRLF line endings so the #!/bin/bash shebang is valid on Linux
 RUN sed -i 's/\r//' /entrypoint.sh && chmod +x /entrypoint.sh
 
 EXPOSE 80
