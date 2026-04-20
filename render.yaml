@@ -23,8 +23,6 @@ services:
         generateValue: true
       - key: APP_URL
         sync: false
-      - key: FRONTEND_URL
-        sync: false
       - key: LOG_CHANNEL
         value: stderr
       - key: LOG_LEVEL
@@ -39,9 +37,5 @@ services:
         value: file
       - key: QUEUE_CONNECTION
         value: sync
-      - key: SANCTUM_STATEFUL_DOMAINS
-        sync: false
-      - key: CORS_ALLOWED_ORIGINS
-        sync: false
       - key: SANCTUM_TOKEN_EXPIRATION
         value: "10080"

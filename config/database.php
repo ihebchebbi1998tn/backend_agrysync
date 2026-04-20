@@ -14,7 +14,7 @@ declare(strict_types=1);
 use Illuminate\Support\Str;
 
 return [
-    'default' => env('DB_CONNECTION', 'pgsql'),
+    'default' => env('DB_CONNECTION', env('DATABASE_URL') ? 'pgsql' : 'sqlite'),
 
     'connections' => [
         'pgsql' => [
