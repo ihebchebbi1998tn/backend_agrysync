@@ -21,7 +21,7 @@ RUN COMPOSER_MEMORY_LIMIT=-1 composer install \
 COPY . .
 RUN COMPOSER_MEMORY_LIMIT=-1 composer dump-autoload --optimize \
     && php artisan package:discover --ansi \
-    && mkdir -p storage/framework/{cache/data,sessions,views} storage/logs \
+    && mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
