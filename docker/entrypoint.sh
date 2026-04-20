@@ -1,19 +1,18 @@
 #!/bin/bash
 
-# Render injects PORT (default 10000). Configure Apache to match.
+echo "==> AgriTrack API starting"
+
+# Render injects PORT (default 10000). Patch Apache to match.
 PORT=${PORT:-80}
+echo "==> Configuring Apache on port $PORT"
 sed -i "s/Listen 80/Listen ${PORT}/" /etc/apache2/ports.conf
 sed -i "s/<VirtualHost \*:80>/<VirtualHost *:${PORT}>/" /etc/apache2/sites-available/000-default.conf
 
-# Ensure writable runtime dirs exist
-mkdir -p storage/framework/{cache/data,sessions,views} storage/logs
-chown -R www-data:www-data storage bootstrap/cache
+echo "==> Caching config"
+php artisan config:cache || echo "[warn] config:cache failed"
 
-php artisan config:cache
+echo "==> Running migrations"
+php artisan migrate --force || echo "[warn] migrate failed - check DATABASE_URL is set in Render dashboard"
 
-# route:cache is skipped — closure routes (health, web root) cannot be serialized.
-# Remove this comment and add route:cache only if all routes use controllers.
-
-php artisan migrate --force || echo "[warn] migrate failed — DATABASE_URL may not be set"
-
-exec apache2-foreground
+echo "==> Starting Apache"
+exec /usr/local/bin/apache2-foreground

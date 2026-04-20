@@ -13,6 +13,7 @@ WORKDIR /var/www/html
 COPY . .
 
 RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist \
+    && mkdir -p storage/framework/{cache/data,sessions,views} storage/logs \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
@@ -20,7 +21,8 @@ COPY docker/vhost.conf /etc/apache2/sites-available/000-default.conf
 RUN a2enmod rewrite
 
 COPY docker/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+# Strip Windows CRLF line endings so the #!/bin/bash shebang is valid on Linux
+RUN sed -i 's/\r//' /entrypoint.sh && chmod +x /entrypoint.sh
 
 EXPOSE 80
 ENTRYPOINT ["/entrypoint.sh"]
